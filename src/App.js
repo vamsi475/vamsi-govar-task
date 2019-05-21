@@ -1,26 +1,38 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Route, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+
+import Login from './containers/Login';
+import EmployeeDetails from "./containers/EmployeeListpage"
+
 import './App.css';
 
-function App() {
+
+const PrivateRoute = ({ component: Component, isAuthenticated, ...rest }) => (
+  <Route
+    {...rest}
+    render={props => (
+      isAuthenticated
+        ? (
+          <Component {...props} />
+        )
+        : (<Redirect to={{ pathname: '/', state: { from: props.location } }} />)
+    )}
+  />
+);
+
+
+function App(props) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Route exact path="/" component={Login} />
+      <PrivateRoute exact path="/employeeDetails" component={EmployeeDetails} isAuthenticated={props.auth} />
+    </BrowserRouter>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  auth: state.auth.auth
+})
+
+export default connect(mapStateToProps, null)(App);
